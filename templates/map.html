@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Animated Icon on Map</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var route = [];
+
+        {% for (lat, lon) in coords %}
+            route.push([{{ lat }}, {{ lon }}]);
+        {% endfor %}
+
+        // Setup the map
+        const map = L.map('map').setView(route[0], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                
+        // Create a marker (use a custom icon if you want)
+        var icon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // Example icon
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        var marker = L.marker(route[0], {
+            icon
+        }).addTo(map);
+
+        function interpolateCoords(start, end, steps) {
+            var coord = [];
+            for (let i = 0; i <= steps; i++) {
+                var lat = start[0] + (end[0] - start[0]) * (i / steps);
+                var lng = start[1] + (end[1] - start[1]) * (i / steps);
+                coord.push([lat, lng]);
+            }
+            return coord;
+        }
+
+        var path = [];
+        let steps = 50;
+        for (let i = 0; i < route.length - 1; i++) {
+            path = path.concat(interpolateCoords(route[i], route[i+1], steps));
+        }
+
+        let index = 0;
+        const speed = 30;
+
+        const animation = setInterval(() => {
+            if (index >= path.length) {
+                clearInterval(animation);
+                return;
+            }
+            marker.setLatLng(path[index]);
+            index++;
+        }, speed);
+
+        // Optional: draw route line on map
+        L.polyline(route, { color: 'blue' }).addTo(map);
+    </script>
+</body>
+
+</html>
