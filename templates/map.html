@@ -15,32 +15,62 @@
     <script>
         var route = [];
 
-        {% for (lat, lon) in coords %}
-            route.push([{{ lat }}, {{ lon }}]);
+        {% for coord in coords %}
+            route.push({
+                'coord': [{{ coord.latitude }}, {{ coord.longitude }}],
+                'loc': '{{ coord.city }} {{ coord.state }} {{ coord.country}}',
+                'date': '{{ coord.date_string }}'
+            });
         {% endfor %}
 
         // Setup the map
-        const map = L.map('map').setView(route[0], 4);
+        const map = L.map('map').setView(route[0].coord, 4);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 
-        // Create a marker (use a custom icon if you want)
-        var icon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // Example icon
+        // Create a marker
+        var plane_icon = L.icon({
+            iconUrl: "{{ url_for('static', filename='plane.svg') }}",
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
 
-        var marker = L.marker(route[0], {
-            icon
+        var icon = L.icon({
+            iconUrl: "{{ url_for('static', filename='map_icon.svg') }}",
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        var marker = L.marker(route[0].coord, {
+            plane_icon
         }).addTo(map);
 
         function interpolateCoords(start, end, steps) {
             var coord = [];
+            coord.push({
+                'coord': start['coord'],
+                'date': start['date'],
+                'loc': start['loc'],
+                'destination': false
+            });
+
             for (let i = 0; i <= steps; i++) {
-                var lat = start[0] + (end[0] - start[0]) * (i / steps);
-                var lng = start[1] + (end[1] - start[1]) * (i / steps);
-                coord.push([lat, lng]);
+                var lat = start['coord'][0] + (end['coord'][0] - start['coord'][0]) * (i / steps);
+                var lon = start['coord'][1] + (end['coord'][1] - start['coord'][1]) * (i / steps);
+                coord.push({
+                    'coord': [lat, lon],
+                    'date': start['date'],
+                    'loc': start['loc'],
+                    'destination': false
+                });
             }
+            
+            coord.push({
+                'coord': end['coord'],
+                'date': end['date'],
+                'loc': end['loc'],
+                'destination': true
+            });
+
             return coord;
         }
 
@@ -52,18 +82,26 @@
 
         let index = 0;
         const speed = 30;
-
+        
         const animation = setInterval(() => {
             if (index >= path.length) {
                 clearInterval(animation);
                 return;
             }
-            marker.setLatLng(path[index]);
+
+            var thisPath = path[index];
+            marker.setLatLng(thisPath.coord);
+
+            if (thisPath['destination']) {
+                var point = L.marker(path[index].coord, {
+                    icon
+                }).addTo(map);
+                
+                point.bindPopup(`${thisPath['loc']}<br>${thisPath['date']}`).openPopup();
+            }
+            
             index++;
         }, speed);
-
-        // Optional: draw route line on map
-        L.polyline(route, { color: 'blue' }).addTo(map);
     </script>
 </body>
 
