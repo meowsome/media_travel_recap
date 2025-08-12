@@ -1,3 +1,8 @@
 .env
 venv/
 *.csv
+takeout_folders/*
+react_app/node_modules/*
+react_app/package-lock.json
+react_app/build/*
+react_app/.react-router/*
