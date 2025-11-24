@@ -7,6 +7,10 @@ function InteractiveForm() {
     const [step, setStep] = useState(0);
     const [error, setError] = useState(null);
     const [years, setYears] = useState(null);
+    const [immichBaseUrl, setImmichBaseUrl] = useState(null);
+    const [immichToken, setImmichToken] = useState(null);
+    const [locations, setLocations] = useState(null);
+    const [stuff, setStuff] = useState(null);
     
     // const handleChange = (e) => {
     //     const { name, value } = e.target;
@@ -31,7 +35,8 @@ function InteractiveForm() {
         const formData = new FormData(e.target)
         let data = {}
         formData.forEach((value, key) => data[key] = value);
-        console.log(data);
+        setImmichToken(data['token']);
+        setImmichBaseUrl(data['baseUrl']);
 
         fetch("/api/immich/initial", {
             method: "POST",
@@ -40,18 +45,14 @@ function InteractiveForm() {
             },
             body: JSON.stringify(data)
         })
-      .then((response) => {
-        console.log(response.statusText);
-        if (response.ok) return response.json();
-        else return response.text().then(text => { throw new Error(text); })
-      }).then((data) => {
-            console.log("Good")
-            console.log(data);
-            setError(null);
-            setYears(data);
-
-            setStep(4);
-      }).catch((error) => {
+        .then((response) => {
+            if (response.ok) return response.json();
+            else return response.text().then(text => { throw new Error(text); })
+        }).then((data) => {
+                setError(null);
+                setYears(data);
+                setStep(4);
+        }).catch((error) => {
             setError(error);
         });
     };
@@ -61,8 +62,34 @@ function InteractiveForm() {
         setStep(4);
     };
 
-    const handleYearSelection = (e) => {
+    const handleImmichYearSelection = (e) => {
         e.preventDefault();
+        const formData = new FormData(e.target)
+        let data = {}
+        formData.forEach((value, key) => data[key] = value);
+        data['baseUrl'] = immichBaseUrl;
+        data['token'] = immichToken;
+        // TODO get the year from the <select> thing, it's showing up as `{year}` right now 
+        console.log(data);
+
+        fetch("/api/immich/recap", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+        .then((response) => {
+            if (response.ok) return response.json();
+            else return response.text().then(text => { throw new Error(text); })
+        }).then((data) => {
+                setError(null);
+                console.log(data);
+                // setStuff(data);
+                setStep(5);
+        }).catch((error) => {
+            setError(error);
+        });
     }
 
     return (
@@ -143,12 +170,12 @@ function InteractiveForm() {
 
             {step == 4 && (
                 <>
-                    <form onSubmit={handleYearSelection} className="flex justify-center items-center">
+                    <form onSubmit={handleImmichYearSelection} className="flex justify-center items-center">
                         <div className="w-64 border border-gray-300 p-4 rounded">
                             <div>
                                 <label htmlFor="year">What year do you want your Media Travel Recap to be for?</label>
-                                <select id="year" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    {years.map(year => <option value="{year}">{year}</option>)}
+                                <select id="year" name="year" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    {years.map(year => <option value={year}>{year}</option>)}
                                 </select>
                             </div>
                             <button type="submit" className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
@@ -156,6 +183,15 @@ function InteractiveForm() {
                             </button>
                         </div>
                     </form>
+                </>
+            )}
+
+            {step == 5 && (
+                <>
+                    <div>
+                        <h1>Map</h1>
+                        {stuff}
+                    </div>
                 </>
             )}
         </div>

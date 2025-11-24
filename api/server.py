@@ -6,8 +6,6 @@ app = Flask(__name__)
 @app.route("/api/immich/initial", methods=['POST'])
 def immich_get_years():
     code, data = fetch_immich_years(request)
-    print(code)
-    print(data)
     if code == 200:
         return jsonify(data)
     else:
@@ -15,7 +13,7 @@ def immich_get_years():
 
 @app.route("/api/immich/recap", methods=['POST'])
 def immich_create_recap():
-    return fetch_immich_photos(request)
+    return jsonify(fetch_immich_photos(request))
 
 if __name__ == "__main__":
     app.run(debug=True)
