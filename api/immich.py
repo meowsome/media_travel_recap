@@ -83,21 +83,22 @@ def fetch_immich_photos(request):
 
     final_df = filtered_df[filtered_df['distance_from_prev'] > 70]
 
-    unique_cities = final_df.groupby(['city', 'state']).ngroups
-    unique_states = final_df['state'].nunique()
-    unique_countries = final_df['country'].nunique()
-    total_distance_traveled = round(final_df['distance_from_prev'].sum(), 2)
-    most_common_state = final_df['state'].mode()
+    stats = {
+        'unique_cities': final_df.groupby(['city', 'state']).ngroups,
+        'unique_states': final_df['state'].nunique(),
+        'unique_countries': final_df['country'].nunique(),
+        'total_distance_traveled': float(round(final_df['distance_from_prev'].sum(), 2)),
+        'most_common_state': final_df['state'].mode().tolist()[0]
+    }
 
     # Create plain text date col
     final_df['date_string'] = pd.to_datetime(final_df['fileCreatedAt'])
     final_df['date_string'] = final_df['date_string'].dt.strftime("%B %Y")
 
-    print(unique_cities)
-    print(unique_states)
-    print(unique_countries)
-    print(total_distance_traveled)
-    print(most_common_state)
+    print(stats)
     print(final_df)
 
-    return unique_states, final_df.to_json()
+    return {
+        'stats': stats,
+        'locations': final_df.to_json()
+    }

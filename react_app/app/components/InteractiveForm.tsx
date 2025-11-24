@@ -10,7 +10,7 @@ function InteractiveForm() {
     const [immichBaseUrl, setImmichBaseUrl] = useState(null);
     const [immichToken, setImmichToken] = useState(null);
     const [locations, setLocations] = useState(null);
-    const [stuff, setStuff] = useState(null);
+    const [stats, setStats] = useState(null);
     
     // const handleChange = (e) => {
     //     const { name, value } = e.target;
@@ -69,8 +69,6 @@ function InteractiveForm() {
         formData.forEach((value, key) => data[key] = value);
         data['baseUrl'] = immichBaseUrl;
         data['token'] = immichToken;
-        // TODO get the year from the <select> thing, it's showing up as `{year}` right now 
-        console.log(data);
 
         fetch("/api/immich/recap", {
             method: "POST",
@@ -84,8 +82,8 @@ function InteractiveForm() {
             else return response.text().then(text => { throw new Error(text); })
         }).then((data) => {
                 setError(null);
-                console.log(data);
-                // setStuff(data);
+                setStats(data['stats']);
+                setLocations(data['locations']);
                 setStep(5);
         }).catch((error) => {
             setError(error);
@@ -190,7 +188,24 @@ function InteractiveForm() {
                 <>
                     <div>
                         <h1>Map</h1>
-                        {stuff}
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-sm">
+                                    <h3>{stats.unique_cities} Unique Cities</h3>
+                                </div>
+                                <div className="col-sm">
+                                    <h3>{stats.unique_states} Unique States</h3>
+                                </div>
+                                <div className="col-sm">
+                                    <h3>{stats.unique_countries} Unique Countries</h3>
+                                </div>
+                                <div className="col-sm">
+                                    <h3>{stats.total_distance_traveled}km Total Distance Traveled</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* {locations} */}
                     </div>
                 </>
             )}
