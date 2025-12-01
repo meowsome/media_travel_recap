@@ -11,3 +11,8 @@ body {
     color-scheme: dark;
   }
 }
+
+.map {
+  height: 700px;
+  width: 700px;
+}

@@ -4,8 +4,7 @@ Media Travel Recap connects to your cloud photo storage to gather all photos and
 
 ### Instructions:
 
-1. Set `IMMICH_BASE_URL` and `IMMICH_TOKEN` in [.env](.env)
-2. Install dependencies for server using `cd api && pip3 install -r requirements.txt`
-3. Start backend using `python3 server.py`
-4. Install dependencies for frontend using `cd ../react_app && npm install`
-5. Start frontend using `npm run dev`
+1. Install dependencies for server using `cd api && pip3 install -r requirements.txt`
+2. Start backend using `python3 server.py`
+3. Install dependencies for frontend using `cd ../react_app && npm install`
+4. Start frontend using `npm run dev`

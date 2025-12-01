@@ -96,9 +96,9 @@ def fetch_immich_photos(request):
     final_df['date_string'] = final_df['date_string'].dt.strftime("%B %Y")
 
     print(stats)
-    print(final_df)
+    print(final_df.to_dict(orient='records'))
 
     return {
         'stats': stats,
-        'locations': final_df.to_json()
+        'locations': final_df.to_dict(orient='records')
     }

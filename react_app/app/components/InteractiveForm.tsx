@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import immich_logo from '../resources/immich_logo.png';
 import google_photos_logo from '../resources/google_photos_logo.png'
 import FileUpload from './FileUpload';
+import MapResult from './MapResult'
 
 function InteractiveForm() {
     const [step, setStep] = useState(0);
@@ -205,7 +206,9 @@ function InteractiveForm() {
                             </div>
                         </div>
 
-                        {/* {locations} */}
+                        <MapResult
+                            locations={locations}
+                        />
                     </div>
                 </>
             )}
