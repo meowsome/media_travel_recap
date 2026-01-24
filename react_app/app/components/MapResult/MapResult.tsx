@@ -7,10 +7,10 @@ import planeMarker from '../../resources/plane.svg';
 
 export default function MapResult({ locations }) {
   const [mapContext, setMapContext] = useState(null);
+  const [seq, setSeq] = useState(null);
 
   const reset = () => {
-    // TODO add method here
-    console.log("Reset");
+    if (seq) seq.clearLayers();
   }
 
   const animatePath = () => {
@@ -36,10 +36,11 @@ export default function MapResult({ locations }) {
         }
       );
 
-    const seq = L.motion.seq([path]);
-    mapContext && mapContext.addLayer(seq);
+    const tempSeq = L.motion.seq([path]);
+    mapContext && mapContext.addLayer(tempSeq);
+    tempSeq.motionStart();
 
-    seq.motionStart();
+    setSeq(tempSeq);
   };
 
   return (
