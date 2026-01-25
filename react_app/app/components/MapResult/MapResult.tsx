@@ -16,19 +16,22 @@ export default function MapResult({ locations }) {
   const animatePath = () => {
     reset();
 
-    const path = L.motion
-      .polyline(
-        locations.map((loc) => [loc.latitude, loc.longitude]),
+const polylineArray = [];
+
+    for (let i = 1; i < locations.length; i++) {
+
+      const path = L.motion.polyline(
+        [[locations[i - 1].latitude, locations[i - 1].longitude], [locations[i].latitude, locations[i].longitude]],
         {
           color: "blue"
         },
         {
           auto: false,
-          duration: 50000,
-          motionDelay: 50000 // TODO fix delay, this delays for the entire animation instead of each segment
+          duration: 2500
         },
         {
-          showMarker: true,
+          removeOnEnd: false,
+          showMarker: false,
           icon: L.icon({
             iconUrl: planeMarker,
             iconSize: [20, 30]
@@ -36,7 +39,10 @@ export default function MapResult({ locations }) {
         }
       );
 
-    const tempSeq = L.motion.seq([path]);
+      polylineArray.push(path);
+    }
+
+    const tempSeq = L.motion.seq(polylineArray);
     mapContext && mapContext.addLayer(tempSeq);
     tempSeq.motionStart();
 
